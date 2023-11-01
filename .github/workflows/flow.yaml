@@ -65,11 +65,11 @@ jobs:
       - name: Dejar Tag
         id: set_openlane_tag2
         run: |
-          echo "{OPENLANE_TAG}=$(docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')" >> "$GITHUB_ENV"
+          echo "{OPENLANE_TAG}={docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}'}" >> "$GITHUB_ENV"
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
         with:
-          image: efabless/openlane:${{OPENLANE_TAG}}
+          image: efabless/openlane:${{ OPENLANE_TAG }}
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
             run_synthesis
