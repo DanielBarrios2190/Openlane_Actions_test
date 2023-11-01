@@ -62,6 +62,10 @@ jobs:
       - name: Restaurar docker
         run: |
           docker load -i ${{ github.workspace }}/OL/cached_image.tar
+      - name: Dejar Tag
+        id: set_openlane_tag2
+        run: |
+          echo "OPENLANE_TAG=$(docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')" >> "$GITHUB_ENV"
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
         with:
