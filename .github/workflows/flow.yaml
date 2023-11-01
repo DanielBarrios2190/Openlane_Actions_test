@@ -65,7 +65,7 @@ jobs:
       - name: Dejar Tag Again
         id: TAG2
         run: |
-          echo "OPENLANE_TAG=(docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')" >> $GITHUB_OUTPUT
+          echo "OPENLANE_TAG=$(docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')" >> $GITHUB_OUTPUT
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
         with:
