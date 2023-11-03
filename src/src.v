@@ -1,4 +1,4 @@
-module SC_RISCV(
+module src(
     input clk,
     input reset,
     input [4:0] sw,
