@@ -5,12 +5,13 @@ set ::env(VERILOG_FILES) "\
  	$::env(DESIGN_DIR)/ALU.v
   	$::env(DESIGN_DIR)/ALUDecoder.v
    	$::env(DESIGN_DIR)/ControlUnit.v
+    	$::env(DESIGN_DIR)/Extend.v
     	$::env(DESIGN_DIR)/InputBlock.v
      	$::env(DESIGN_DIR)/LEDBlock.v
       	$::env(DESIGN_DIR)/MainDecoder.v
 	$::env(DESIGN_DIR)/RAM.v
 	$::env(DESIGN_DIR)/ROM.v
-	$::env(DESIGN_DIR)/RAM.v"
+	$::env(DESIGN_DIR)/RegisterFile.v"
  
 set ::env(DESIGN_IS_CORE) 0
 
