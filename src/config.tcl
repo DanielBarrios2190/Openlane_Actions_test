@@ -2,7 +2,16 @@ set ::env(DESIGN_NAME) src
 
 set ::env(VERILOG_FILES) "\
 	$::env(DESIGN_DIR)/src.v" 
-
+ 	$::env(DESIGN_DIR)/ALU.v"
+  	$::env(DESIGN_DIR)/ALUDecoder.v"
+   	$::env(DESIGN_DIR)/ControlUnit.v"
+    	$::env(DESIGN_DIR)/InputBlock.v"
+     	$::env(DESIGN_DIR)/LEDBlock.v"
+      	$::env(DESIGN_DIR)/MainDecoder.v"
+	$::env(DESIGN_DIR)/RAM.v"
+	$::env(DESIGN_DIR)/ROM.v"
+	$::env(DESIGN_DIR)/RAM.v"
+ 
 set ::env(DESIGN_IS_CORE) 0
 
 set ::env(CLOCK_PORT) "clk"
