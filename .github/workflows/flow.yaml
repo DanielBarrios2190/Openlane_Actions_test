@@ -63,7 +63,7 @@ jobs:
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
         with:
-          image: efabless/openlane:6ab36bf20edfd4d111b7a59b21f4050622a03f5a
+          image: efabless/openlane:f4f8dad8273204c2c3a848ca50ebc4e08413b602
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
             ./flow.tcl -design src -tag latest -overwrite
