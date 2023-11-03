@@ -73,4 +73,20 @@ jobs:
           name: Results
           path: |
             ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/
+      - name: Usar Archivos de tiny tapeout
+        uses: actions/checkout@v3
+        with:
+          repository: tinytapeout/tt-support-tools
+          path: tt
+          ref: tt05
+      
+      - name: Render PNG from GDS
+        shell: bash
+        run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+
+      - name: Upload gds_render (png) artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: gds_render
+          path: 'gds_render.png'
 
