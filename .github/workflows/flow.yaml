@@ -12,6 +12,7 @@ jobs:
         with:
           python-version: 3.10.5
       - name: Cache OpenLane and PDK
+        if: steps.cache-ol.outputs.cache-hit != 'true'
         uses: actions/cache@v2
         id: cache-ol
         with:
@@ -86,6 +87,10 @@ jobs:
           repository: tinytapeout/tt-support-tools
           path: tt
           ref: tt05
+      - name: Instalar Prerequisitos
+        run: |
+          pip install -r requirements.txt
+          pre-commit install
       
       - name: Render PNG from GDS
         shell: bash
