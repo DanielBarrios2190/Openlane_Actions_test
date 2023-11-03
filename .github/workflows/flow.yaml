@@ -73,6 +73,13 @@ jobs:
           name: Results
           path: |
             ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/
+
+      - name: Prerequisitos de PNG
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: librsvg2-bin pngquant # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
+          version: tt05 # I think naming a version builds a reusable packages cache for that name.
+      
       - name: Usar Archivos de tiny tapeout
         uses: actions/checkout@v3
         with:
