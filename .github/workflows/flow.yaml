@@ -84,7 +84,7 @@ jobs:
         with:
           name: Results
           path: |
-            /work/runs/wokwi
+            ${{ github.workspace }}/OL/OpenLane/designs/work/runs/wokwi
 
       - name: Prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
