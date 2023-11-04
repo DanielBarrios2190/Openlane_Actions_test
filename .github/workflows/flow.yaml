@@ -75,7 +75,8 @@ jobs:
           image: efabless/openlane:f4f8dad8273204c2c3a848ca50ebc4e08413b602
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
-            ./flow.tcl -design src -tag latest -overwrite
+            #./flow.tcl -design src -tag latest -overwrite
+            ./flow.tcl -overwrite -design src -run_path /work/runs -tag wokwi
             
       - name: Subir Resultados
         uses: actions/upload-artifact@v3
@@ -105,10 +106,6 @@ jobs:
       - name: Inicializar configuración tipo Tiny-Tapeout
         shell: bash
         run: ./tt/tt_tool.py --create-user-config
-
-      - name: Make GDS with OpenLane
-        shell: bash
-        run: ./tt/tt_tool.py --harden
       
       - name: Render PNG from GDS
         shell: bash
