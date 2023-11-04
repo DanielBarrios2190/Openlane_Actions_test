@@ -65,7 +65,7 @@ jobs:
       - name: Restaurar docker
         run: |
           docker load -i ${{ github.workspace }}/OL/cached_image.tar
-          cp -r ${{ github.workspace }}/tt_um_src ${{ github.workspace }}/OL/OpenLane/designs/
+          cp -r ${{ github.workspace }}/src ${{ github.workspace }}/OL/OpenLane/designs/
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
         with:
