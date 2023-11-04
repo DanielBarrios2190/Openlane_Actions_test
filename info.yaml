@@ -6,16 +6,6 @@ project:
 # If using an HDL, set wokwi_id as 0 and uncomment and list your source files here. 
 # Source files must be in ./src and you must list each source file separately
   source_files:
-    - ALU.v
-    - ALUDecoder.v
-    - ControlUnit.v
-    - Extend.v
-    - InputBlock.v
-    - LEDBlock.v
-    - MainDecoder.v
-    - RAM.v
-    - ROM.v
-    - RegisterFile.v
     - src.v
     
   top_module:  "src.v"      # Put the name of your top module here, must start with "tt_um_". Make it unique by including your github username
