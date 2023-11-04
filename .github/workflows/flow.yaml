@@ -8,10 +8,15 @@ jobs:
     steps:
       - name: Repositorio principal
         uses: actions/checkout@v3
-      - name: Instalar Python
-        uses: actions/setup-python@v4.7.1
         with:
-          python-version: 3.10.5
+          repository: tinytapeout/tt-support-tools
+          path: tt
+          ref: tt05
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
           cache: 'pip'
       - name: Cache OpenLane and PDK
         if: steps.cache-ol.outputs.cache-hit != 'true'
