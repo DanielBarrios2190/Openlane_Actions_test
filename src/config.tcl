@@ -1,4 +1,4 @@
-set ::env(DESIGN_NAME) src
+set ::env(DESIGN_NAME) tt_um_src
 
 set ::env(VERILOG_FILES) "\
 	$::env(DESIGN_DIR)/tt_um_src.v"
