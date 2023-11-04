@@ -72,14 +72,14 @@ jobs:
           image: efabless/openlane:f4f8dad8273204c2c3a848ca50ebc4e08413b602
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
-            ./flow.tcl -design tt_um_src -tag latest -overwrite
+            ./flow.tcl -design src -tag latest -overwrite
       - name: Subir Resultados
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: Results
           path: |
-            ${{ github.workspace }}/OL/OpenLane/designs/tt_um_src/runs/latest/
+            ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/
 
       - name: Prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
