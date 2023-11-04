@@ -24,6 +24,3 @@ set ::env(DIE_AREA) "0 0 1000 1000"
 
 set ::env(PL_TARGET_DENSITY) 0.75
 set ::env(FP_CORE_UTIL) 85
- 
-set ::env(PL_RESIZER_MAX_SLEW_MARGIN) 1.0
-set ::env(GLB_RESIZER_MAX_SLEW_MARGIN) 1.0
