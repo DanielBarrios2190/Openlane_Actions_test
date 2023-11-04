@@ -76,7 +76,7 @@ jobs:
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
             #./flow.tcl -design src -tag latest -overwrite
-            ./flow.tcl -overwrite -design src -run_path work/runs -tag wokwi
+            ./flow.tcl -overwrite -design src -run_path /home/runner/work/Openlane_Actions_test/Openlane_Actions_test/work/runs -tag wokwi
             
       - name: Subir Resultados
         uses: actions/upload-artifact@v3
@@ -84,7 +84,7 @@ jobs:
         with:
           name: Results
           path: |
-            ${{ github.workspace }}/OL/OpenLane/designs/
+            /home/runner/work/Openlane_Actions_test/Openlane_Actions_test/work/runs
 
       - name: Prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
