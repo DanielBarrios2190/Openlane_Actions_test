@@ -1,124 +1,60 @@
 module src(
-    input clk,
-    input reset,
-    input [4:0] sw,
-    input IR,
-    output [3:0] led
-);
-wire Zero;
-//Program Counter and Related:
-reg [4:0] PC;
-wire [4:0] PCNext, PCPlus1, PCTarget;
-//Instruction:
-wire [31:0] Instr;
-//ALU:
-wire [31:0] SrcA, SrcB;
-wire [31:0] ALUResult;                          //ALU Output / RAM Input (A)
-//wire Zero;
-//RAM:
-wire [31:0] ReadData;
-wire [31:0] ReadDataOut;                        //RAM Output:
-wire [31:0] WriteData;                          //RF Output (RD2) / RAM Input
-//Control Unit Outputs:
-wire PCSrc, MemWrite, ALUSrc, RegWrite;
-wire [1:0] ResultSrc;
-wire [2:0] ALUControl;
-wire [2:0] ImmSrc;
-//Misc Signals:
-wire [31:0] ImmExt;                             //Extend Output:
-reg [31:0] Result;                              //Mux Output / RF Input (WD3)
+    input  wire [7:0] ui_in,    // Dedicated inputs - connected to the input switches
+    output wire [7:0] uo_out,   // Dedicated outputs - connected to the 7 segment display
+    input  wire [7:0] uio_in,   // IOs: Bidirectional Input path
+    output wire [7:0] uio_out,  // IOs: Bidirectional Output path
+    output wire [7:0] uio_oe,   // IOs: Bidirectional Enable path (active high: 0=input, 1=output)
+    input  wire       ena,      // will go high when the design is enabled
+    input  wire       clk,      // clock
+    input  wire       rst_n     // reset_n - low to 
+    
+    );
+    
+    wire [2:0] bits ;
 
-//_________________________________________________________________________//
-assign PCNext = PCSrc ? PCTarget : PCPlus1;     //Mux del siguiente PC
+    reg [7:0] cnt;
+    wire [7:0] duty;
+    reg pwm_q,ppm_q;
+    reg [2:0] bits_pre;
+    wire pwm_d,ppm_d;
 
-always @(posedge clk) begin    //Registro de PC
-    if (reset) begin
-        PC <= 0; 
-    end else begin
-        PC <= PCNext;
+    assign duty = ui_in [7:0];
+    assign bits = uio_in[2:0];
+
+    assign uio_oe = 8'b11111000;
+    assign uio_out[7:0] = 8'b00000000;
+    assign uo_out[7:1] = 7'b0000000;
+    
+    always @(posedge clk) begin
+      if(rst_n) begin
+        bits_pre <= bits;
+        if(bits_pre != bits) begin
+            cnt <= 8'd0;
+            pwm_q <= 1'b0;
+        end
+        else begin
+            
+            pwm_q <= pwm_d;
+                     
+            if((cnt >= (2**bits)))
+                cnt <= 0;
+            else begin     
+                cnt <= cnt + 1;
+            end
+        end
+        bits_pre <= bits;
+      end else begin
+         pwm_q <= 1'b0;
+         cnt <= 0;
+         bits_pre <= bits;
+      end
     end
-end
 
-assign PCPlus1 = PC + 1;                        //Siguiente PC
-assign PCTarget = ImmExt + PC;                  //PC objetivo para instrucciones tipo Branch
-assign SrcB = ALUSrc ? ImmExt : WriteData;      //Mux de SrcB 
+    
+    assign pwm_d = (cnt < duty);
+    assign uo_out[0] = pwm_q;
+    
 
-always @(*) begin                               //Mux 4 a 1 de Result
-    case (ResultSrc)
-        2'b00: Result = ALUResult;
-        2'b01: Result = ReadDataOut; //Se cambio *******
-        2'b10: Result = PCPlus1;
-        2'b11: Result = ImmExt;
-    endcase
-end
-//_________________________________________________________________________//
-ROM ROM_Inst(
-    //.clk(clk),
-    .PC(PC),
-    .Instr(Instr)
-);
-
-RegisterFile RegisterFile_Inst(
-    .clk(clk),
-    .A1(Instr[19:15]),
-    .A2(Instr[24:20]),
-    .A3(Instr[11:7]),
-    .WD3(Result),
-    .WE3(RegWrite),
-    .RD1(SrcA),
-    .RD2(WriteData)
-);
-
-Extend Extend_Inst(
-    .Instr(Instr[31:7]),
-    .ImmSrc(ImmSrc),
-    .ImmExt(ImmExt)
-);
-
-ControlUnit ControlUnit_Inst(
-    .op(Instr[6:0]),
-    .funct3(Instr[14:12]),
-    .funct7(Instr[30]),
-    .Zero(Zero),
-    .PCSrc(PCSrc),
-    .MemWrite(MemWrite),
-    .ALUSrc(ALUSrc),
-    .RegWrite(RegWrite),
-    .ResultSrc(ResultSrc),
-    .ImmSrc(ImmSrc),
-    .ALUControl(ALUControl)
-);
-
-ALU ALU_Inst(
-    .SrcA(SrcA),
-    .SrcB(SrcB),
-    .ALUControl(ALUControl),
-    .Zero(Zero),
-    .ALUResult(ALUResult)
-);
-
-RAM RAM_Inst(
-    .clk(clk),
-    .we(MemWrite),
-    .A(ALUResult[4:0]),
-    .WD(WriteData),
-    .RD(ReadData)
-);
-
-LEDBlock LEDBlock_per(
-    .clk(clk),
-    .D(WriteData[3:0]),
-    .dir(ALUResult[4:0]),
-    .MemWrite(MemWrite),
-    .LED(led)
-);
-
-InputBlock InputBlock_per(
-    .ReadData(ReadData),
-    .sw(sw),
-    .IR(IR),
-    .dir(ALUResult[4:0]),
-    .ReadDataOut(ReadDataOut)
-);
 
 endmodule
+
