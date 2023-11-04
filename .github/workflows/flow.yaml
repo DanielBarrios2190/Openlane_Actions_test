@@ -76,7 +76,7 @@ jobs:
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
             #./flow.tcl -design src -tag latest -overwrite
-            ./flow.tcl -overwrite -design src -run_path /work/runs -tag wokwi
+            ./flow.tcl -overwrite -design src -run_path work/runs -tag wokwi
             
       - name: Subir Resultados
         uses: actions/upload-artifact@v3
