@@ -20,7 +20,7 @@ set ::env(CLOCK_NET) "clk"
 set ::env(CLOCK_PERIOD) "15.0"
 
 set ::env(FP_SIZING) "absolute"
-set ::env(DIE_AREA) "0 0 1000 1000" 
+set ::env(DIE_AREA) "0 0 800 800" 
 
 set ::env(PL_TARGET_DENSITY) 0.75
 set ::env(FP_CORE_UTIL) 85
