@@ -69,6 +69,10 @@ jobs:
           workflow: flow.yaml
           workflow_conclusion: success
           name: GDS
+      
+      - uses: actions/download-artifact@v3
+        with:
+          name: gds_render
 
       - name: gds2gltf
         shell: bash
@@ -76,11 +80,12 @@ jobs:
           ls -lh
           python -m pip install numpy gdspy triangle pygltflib
           mkdir ${{ github.workspace }}/gh-pages/
+          mv gds_render.png ./gh-pages/
           mv ${{ github.workspace }}/*.gds render.gds
           python3 gds2gltf.py render.gds
           cp render.gds.gltf gh-pages/render.gds.gltf
 
-      - name: Generate HTML pages that redirects to viewer
+      - name: Crear HTML
         shell: bash
         run: |
           cat << EOF >> gh-pages/index.html
@@ -100,16 +105,16 @@ jobs:
             </html>
           EOF
 
-      - name: Upload artifact
+      - name: Subir Pagina
         uses: actions/upload-pages-artifact@v1
         with:
           path: 'gh-pages'
 
-      - name: Deploy to GitHub Pages
+      - name: Compartir con Github-Pages
         id: deployment
         uses: actions/deploy-pages@v2
 
-      - name: Display preview in workflow summary
+      - name: Summary
         shell: bash
         run: |
           PAGE_URL=${{ steps.deployment.outputs.page_url }}
