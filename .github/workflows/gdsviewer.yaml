@@ -24,7 +24,7 @@ jobs:
       - name: Descargar GDS
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: openlane.yaml
+          workflow: flow.yaml
           workflow_conclusion: success
           name: GDS
       
