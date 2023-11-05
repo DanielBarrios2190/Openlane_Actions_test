@@ -71,18 +71,17 @@ jobs:
           key: cache-key-${{ runner.os }}
           
       - name: Restaurar docker
+        id: restore_docker
         run: |
           docker load -i ${{ github.workspace }}/OL/cached_image.tar
           cp -r ${{ github.workspace }}/src ${{ github.workspace }}/OL/OpenLane/designs/
           OPENLANE_TAG=$(docker images --filter "reference=efabless/openlane" --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')
-          echo $OPENLANE_TAG
-      - name: Set Docker Image Name
-        run: echo "::set-env name=OPENLANE_IMAGE::efabless/openlane:$OPENLANE_TAG"
-        env:
-          OPENLANE_TAG: ${{ steps.restore_docker.outputs.OPENLANE_TAG }}
+          echo "OPENLANE_IMAGE=efabless/openlane:$OPENLANE_TAG" >> "$GITHUB_OUTPUT"
           
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
+        env:
+          OPENLANE_IMAGE: ${{ steps.restore_docker.outputs.OPENLANE_IMAGE }}
         with:
           image: ${{ env.OPENLANE_IMAGE }}
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
