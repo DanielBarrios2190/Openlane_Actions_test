@@ -84,7 +84,7 @@ jobs:
         with:
           name: Results
           path: |
-            /home/runner/work/Openlane_Actions_test/Openlane_Actions_test/work/runs
+            /home/runner/work/Openlane_Actions_test/Openlane_Actions_test/work/
 
       - name: Prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -105,7 +105,9 @@ jobs:
 
       - name: Inicializar configuración tipo Tiny-Tapeout
         shell: bash
-        run: ./tt/tt_tool.py --create-user-config
+        run: |
+          cd /home/runner/work/Openlane_Actions_test/Openlane_Actions_test/work/
+          ./tt/tt_tool.py --create-user-config
       
       - name: Render PNG from GDS
         shell: bash
