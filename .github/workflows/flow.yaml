@@ -93,13 +93,13 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Results
-          path: ${{ github.workspace }}/OL/OpenLane/designs/runs/latest/results/
+          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/results/
 
       - name: Subir solo gds
         uses: actions/upload-artifact@v3
         with:
           name: GDS
-          path: ${{ github.workspace }}/OL/OpenLane/designs/runs/latest/results/final/gds/
+          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/results/final/gds/
           
   GDSView:
       runs-on: ubuntu-latest
