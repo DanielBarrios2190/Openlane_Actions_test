@@ -89,20 +89,64 @@ jobs:
         shell: bash
         run: |
           cat << EOF >> gh-pages/index.html
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
               <meta charset="UTF-8">
-              <meta http-equiv="X-UA-Compatible" content="IE=edge">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Redirecting to GDS Viewer...</title>
-            </head>
-            <body>
+              <title>View GLTF Model with Visibility Control</title>
+          </head>
+          <body>
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
+          
+              <div id="viewer"></div>
+              <div id="controls">
+                  <label><input type="checkbox" id="item1"> Item 1</label>
+                  <label><input type="checkbox" id="item2"> Item 2</label>
+                  <!-- Add more checkboxes for other items as needed -->
+              </div>
+          
               <script>
-                location.href = "https://gds-viewer.tinytapeout.com/?model=" + encodeURIComponent(location.href + '/render.gds.gltf');
+                  const scene = new THREE.Scene();
+                  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                  camera.position.z = 5;
+          
+                  const renderer = new THREE.WebGLRenderer();
+                  renderer.setSize(window.innerWidth, window.innerHeight);
+                  document.getElementById('viewer').appendChild(renderer.domElement);
+          
+                  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+          
+                  const loader = new THREE.GLTFLoader();
+                  loader.load('render.gds.gltf', (gltf) => {
+                      const model = gltf.scene;
+                      scene.add(model);
+          
+                      const item1Checkbox = document.getElementById('item1');
+                      const item2Checkbox = document.getElementById('item2');
+                      // Add more checkboxes and corresponding objects as needed
+          
+                      item1Checkbox.addEventListener('change', () => {
+                          model.children[0].visible = item1Checkbox.checked;
+                      });
+          
+                      item2Checkbox.addEventListener('change', () => {
+                          model.children[1].visible = item2Checkbox.checked;
+                      });
+                      // Add more event listeners for other items as needed
+                  });
+          
+                  const animate = () => {
+                      requestAnimationFrame(animate);
+                      controls.update();
+                      renderer.render(scene, camera);
+                  };
+          
+                  animate();
               </script>
-            </body>
-            </html>
+          </body>
+          </html>
           EOF
 
       - name: Subir Pagina
