@@ -71,7 +71,7 @@ jobs:
           ls -lh
           python -m pip install numpy gdspy triangle pygltflib
           mkdir ${{ github.workspace }}/gh-pages/
-          mv ${{ github.workspace }}/gds/*.gds render.gds
+          mv ${{ github.workspace }}/*.gds render.gds
           python3 gds2gltf.py render.gds
           cp render.gds.gltf gh-pages/render.gds.gltf
 
