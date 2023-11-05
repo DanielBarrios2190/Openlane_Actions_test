@@ -8,10 +8,6 @@ jobs:
     steps:
       - name: Repositorio principal
         uses: actions/checkout@v3
-        with:
-          repository: tinytapeout/tt-support-tools
-          path: tt
-          ref: tt05
 
       - name: Instalar Python
         uses: actions/setup-python@v4
@@ -20,7 +16,7 @@ jobs:
           
       - name: Cache OpenLane and PDK
         if: steps.cache-ol.outputs.cache-hit != 'true'
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache-ol
         with:
           path: |
@@ -63,7 +59,7 @@ jobs:
         uses: actions/checkout@v3
         
       - name: Restaurar dependencias
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /home/runner/.volare
@@ -116,7 +112,8 @@ jobs:
       
       - name: Mover gds
         run: |
-            cp -r ${{ github.workspace }}/OL/OpenLane/designs/runs/latest/results/final/gds/ ${{ github.workspace }}
+            mkdir ${{ github.workspace }}/gds/
+            cp *.png ${{ github.workspace }}
 
       - name: Buscar prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
