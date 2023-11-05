@@ -74,55 +74,61 @@ jobs:
         run: |
           docker load -i ${{ github.workspace }}/OL/cached_image.tar
           cp -r ${{ github.workspace }}/src ${{ github.workspace }}/OL/OpenLane/designs/
+          docker images
+          OPENLANE_TAG=$(docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')
           
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
         with:
-          image: efabless/openlane:f4f8dad8273204c2c3a848ca50ebc4e08413b602
+          image: efabless/openlane:${OPENLANE_TAG}
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
-            #./flow.tcl -design src -tag latest -overwrite
-            ./flow.tcl -overwrite -design src -run_path /home/runner/work/Openlane_Actions_test/Openlane_Actions_test/runs -tag wokwi
+            ./flow.tcl -overwrite -design src -tag latest
 
-      - name: Prerequisitos de PNG
+      - name: Subir resultados
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Results
+          path: ${{ github.workspace }}/OL/OpenLane/designs/runs/latest/results/
+
+      - name: Subir solo gds
+        uses: actions/upload-artifact@v3
+        with:
+          name: GDS
+          path: ${{ github.workspace }}/OL/OpenLane/designs/runs/latest/results/final/gds/
+          
+  GDSView:
+      runs-on: ubuntu-latest
+      needs: Run
+      if: success()
+      steps:
+      - name: Buscar Archivos de test
+        uses: actions/checkout@v3
+
+      - name: Descargar GDS
+        uses: actions/download-artifact@v3
+        with:
+          name: GDS
+      
+      - name: Mover gds
+        run: |
+            cp -r ${{ github.workspace }}/OL/OpenLane/designs/runs/latest/results/final/gds/ ${{ github.workspace }}
+
+      - name: Buscar prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: librsvg2-bin pngquant # librsvg2-bin for rsvg-convert; pngquant for heavy PNG compression.
+          packages: librsvg2-bin pngquant
           version: tt05 # I think naming a version builds a reusable packages cache for that name.
-      
-      - name: Usar Archivos de tiny tapeout
-        uses: actions/checkout@v3
-        with:
-          repository: tinytapeout/tt-support-tools
-          path: tt
-          ref: tt05
         
       - name: Instalar Prerequisitos
         run: |
           pip install appdirs==1.4.4 cairocffi==1.6.0 CairoSVG==2.7.0 certifi==2023.5.7 cffi==1.15.1 charset-normalizer==3.1.0 click==8.1.3 cssselect2==0.7.0 defusedxml==0.7.1 gdstk==0.9.42 gitdb==4.0.10 GitPython==3.1.31 idna==3.4 importlib-resources==5.12.0 mistune==3.0.1 numpy==1.24.3 Pillow==9.5.0 pycparser==2.21 python-frontmatter==1.0.0 pytz==2023.3 PyYAML==6.0 requests==2.31.0 smmap==5.0.0 stripe==5.4.0 tinycss2==1.2.1 urllib3==2.0.3 wasmtime==9.0.0 webencodings==0.5.1 yowasp-runtime==1.22 yowasp-yosys==0.30.0.0.post538 zipp==3.15.0 pre-commit==3.4.0
           pre-commit install
-
-      - name: Inicializar configuración tipo Tiny-Tapeout
-        shell: bash
-        run: ./tt/tt_tool.py --create-user-config
-        
-      - name: Publish GDS artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: GDS
-          path: |
-            src/*
-            runs/wokwi/results/final/*
-            runs/wokwi/reports/metrics.csv
-            runs/wokwi/reports/synthesis/1-synthesis*
-            runs/wokwi/OPENLANE_VERSION
-            runs/wokwi/PDK_SOURCES
-            runs/wokwi/config.tcl
-            LICENSE
-            
+                    
       - name: Render PNG from GDS
         shell: bash
-        run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
+        run: python3 gds2png.py
 
       - name: Upload gds_render (png) artifact
         uses: actions/upload-artifact@v3
