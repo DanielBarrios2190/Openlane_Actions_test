@@ -113,7 +113,7 @@ jobs:
       - name: Mover gds
         run: |
             mkdir ${{ github.workspace }}/gds/
-            cp *.png ${{ github.workspace }}
+            cp *.gds ${{ github.workspace }}
 
       - name: Buscar prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
