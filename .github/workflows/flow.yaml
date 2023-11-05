@@ -87,7 +87,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: Logs
+          name: Reports
           path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/reports/
       - name: Subir Logs
         if: always()
@@ -96,7 +96,7 @@ jobs:
           name: Logs
           path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/logs/
 
-      - name: Subir resultados
+      - name: Subir Resultados
         if: success()
         uses: actions/upload-artifact@v3
         with:
