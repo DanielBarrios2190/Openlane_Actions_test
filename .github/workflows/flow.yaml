@@ -25,26 +25,26 @@ jobs:
         with:
           path: |
             /home/runner/.volare
-            ${{ github.workspace }}/OL
+            DigitalFlowData/OL
           key: cache-key-${{ runner.os }}
           
       - name: Clonar OpenLane
         if: steps.cache-ol.outputs.cache-hit != 'true'
         run: |
-          mkdir  ${{ github.workspace }}/OL
-          cd ${{ github.workspace }}/OL
+          mkdir  DigitalFlowData/OL
+          cd DigitalFlowData/OL
           git clone --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git
           
       - name: Instalar OpenLane
         if: steps.cache-ol.outputs.cache-hit != 'true'
         run: |
-          cd ${{ github.workspace }}/OL/OpenLane
+          cd DigitalFlowData/OL/OpenLane
           make
           
       - name: Correr Test
         if: steps.cache-ol.outputs.cache-hit != 'true'
         run: |
-          cd ${{ github.workspace }}/OL/OpenLane
+          cd DigitalFlowData/OL/OpenLane
           make test
           
       - name: Revisar y guardar version OpenLane
@@ -52,7 +52,7 @@ jobs:
         run: |
           docker images
           OPENLANE_TAG=$(docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')
-          docker save -o ${{ github.workspace }}/OL/cached_image.tar efabless/openlane:${OPENLANE_TAG}
+          docker save -o DigitalFlowData/OL/cached_image.tar efabless/openlane:${OPENLANE_TAG}
           
   Run:
     runs-on: ubuntu-latest
@@ -67,13 +67,13 @@ jobs:
         with:
           path: |
             /home/runner/.volare
-            ${{ github.workspace }}/OL
+            DigitalFlowData/OL
           key: cache-key-${{ runner.os }}
           
       - name: Restaurar docker
         run: |
-          docker load -i ${{ github.workspace }}/OL/cached_image.tar
-          cp -r ${{ github.workspace }}/src ${{ github.workspace }}/OL/OpenLane/designs/
+          docker load -i DigitalFlowData/OL/cached_image.tar
+          cp -r ${{ github.workspace }}/src DigitalFlowData/OL/OpenLane/designs/
           
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
@@ -82,7 +82,7 @@ jobs:
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
             #./flow.tcl -design src -tag latest -overwrite
-            ./flow.tcl -overwrite -design src -run_path /home/runner/work/Openlane_Actions_test/Openlane_Actions_test/runs -tag wokwi
+            ./flow.tcl -overwrite -design src -run_path /home/runner/work/Openlane_Actions_test/DigitalFlowData/runs -tag wokwi
             
       - name: Subir Resultados
         uses: actions/upload-artifact@v3
@@ -90,7 +90,7 @@ jobs:
         with:
           name: Results
           path: |
-            /home/runner/work/Openlane_Actions_test/Openlane_Actions_test/runs/
+            /home/runner/work/Openlane_Actions_test/DigitalFlowData/runs/
 
       - name: Prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
