@@ -74,13 +74,13 @@ jobs:
         run: |
           docker load -i ${{ github.workspace }}/OL/cached_image.tar
           cp -r ${{ github.workspace }}/src ${{ github.workspace }}/OL/OpenLane/designs/
-          docker images
-          OPENLANE_TAG=$(docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')
+          OPENLANE_TAG=$(docker images --filter "reference=efabless/openlane" --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')
+          echo $OPENLANE_TAG
           
       - name: Run Nueva
         uses: addnab/docker-run-action@v3
         with:
-          image: efabless/openlane:${OPENLANE_TAG}
+          image: efabless/openlane:$OPENLANE_TAG
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
             ./flow.tcl -overwrite -design src -tag latest
