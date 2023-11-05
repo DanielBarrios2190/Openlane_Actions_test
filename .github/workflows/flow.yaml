@@ -113,7 +113,21 @@ jobs:
       - name: Inicializar configuración tipo Tiny-Tapeout
         shell: bash
         run: ./tt/tt_tool.py --create-user-config
-      
+        
+      - name: Publish GDS artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: GDS
+          path: |
+            src/*
+            runs/wokwi/results/final/*
+            runs/wokwi/reports/metrics.csv
+            runs/wokwi/reports/synthesis/1-synthesis*
+            runs/wokwi/OPENLANE_VERSION
+            runs/wokwi/PDK_SOURCES
+            runs/wokwi/config.tcl
+            LICENSE
+            
       - name: Render PNG from GDS
         shell: bash
         run: './tt/tt_tool.py --create-png 2>&1 || echo "WARNING: Failed to render PNG preview from GDS; error $?"'
