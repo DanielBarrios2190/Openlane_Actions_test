@@ -6,6 +6,11 @@ jobs:
   GDSView:
       runs-on: ubuntu-latest
       steps:
+      - name: GDS3D
+        uses: actions/checkout@v3
+        with:
+          repository: mbalestrini/GDS2glTF
+      
       - name: Python
         uses: actions/setup-python@v4
         with:
@@ -13,7 +18,7 @@ jobs:
           cache: 'pip' # caching pip dependencies
 
       
-      - name: Buscar Archivos de test
+      - name: Buscar repo normal
         uses: actions/checkout@v3
 
       - name: Descargar GDS
