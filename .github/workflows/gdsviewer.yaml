@@ -18,20 +18,20 @@ jobs:
           cache: 'pip' # caching pip dependencies
 
       
-      - name: Buscar repo normal
-        uses: actions/checkout@v3
+#      - name: Buscar repo normal
+#        uses: actions/checkout@v3
 
-      - name: Descargar GDS
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: flow.yaml
-          workflow_conclusion: success
-          name: GDS
+#      - name: Descargar GDS
+#        uses: dawidd6/action-download-artifact@v2
+#        with:
+#          workflow: flow.yaml
+#          workflow_conclusion: success
+#          name: GDS
       
-      - name: Mover gds
-        run: |
-            mkdir ${{ github.workspace }}/gds/
-            cp *.gds ${{ github.workspace }}/gds/
+#      - name: Mover gds
+#        run: |
+#            mkdir ${{ github.workspace }}/gds/
+#            cp *.gds ${{ github.workspace }}/gds/
 
       - name: Buscar prerequisitos de PNG
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -58,9 +58,17 @@ jobs:
         with:
           repository: mbalestrini/GDS2glTF
 
+      - name: Descargar GDS
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: flow.yaml
+          workflow_conclusion: success
+          name: GDS
+
       - name: gds2gltf
         shell: bash
         run: |
+          ls -lh
           python -m pip install numpy gdspy triangle pygltflib
           mkdir ${{ github.workspace }}/gh-pages/
           mv ${{ github.workspace }}/gds/*.gds render.gds
