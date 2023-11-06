@@ -83,23 +83,14 @@ jobs:
           options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
           run: |
             ./flow.tcl -overwrite -design src -tag latest
-      - name: Subir Reportes
+      - name: Subir Resultados
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: Reports
-          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/reports/
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: Logs
-          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/logs/
-      - uses: actions/upload-artifact@v3
-        if: success()
-        with:
-          name: Results
-          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/results/
-      - uses: actions/upload-artifact@v3
+          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/
+      - name: Subir GDS solo
+        uses: actions/upload-artifact@v3
         if: success()
         with: 
           name: GDS
@@ -115,4 +106,4 @@ jobs:
         with:
           csvinput: ${{ steps.csv.outputs.content }}
       - run: |
-          echo "${{ steps.csv-table-output.outputs.content }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.csv-table-output.outputs.markdown-table }}" >> $GITHUB_STEP_SUMMARY
