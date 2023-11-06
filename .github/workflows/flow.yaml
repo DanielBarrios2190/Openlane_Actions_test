@@ -84,28 +84,35 @@ jobs:
           run: |
             ./flow.tcl -overwrite -design src -tag latest
       - name: Subir Reportes
-        if: always()
         uses: actions/upload-artifact@v3
+        if: always()
         with:
           name: Reports
           path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/reports/
-      - name: Subir Logs
+      - uses: actions/upload-artifact@v3
         if: always()
-        uses: actions/upload-artifact@v3
         with:
           name: Logs
           path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/logs/
-
-      - name: Subir Resultados
+      - uses: actions/upload-artifact@v3
         if: success()
-        uses: actions/upload-artifact@v3
         with:
           name: Results
           path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/results/
-
-      - name: Subir solo gds
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         if: success()
         with: 
           name: GDS
           path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/results/final/gds/
+      
+      - name: Read CSV
+        id: csv
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/reports/metrics.csv
+      - uses: petems/csv-to-md-table-action@master
+        id: csv-table-output
+        with:
+          csvinput: ${{ steps.csv.outputs.content }}
+      - run: |
+          echo "${{ steps.csv-table-output.outputs.content }}" >> $GITHUB_STEP_SUMMARY
