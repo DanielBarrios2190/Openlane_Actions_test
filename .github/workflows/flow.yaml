@@ -46,8 +46,8 @@ jobs:
       - name: Revisar y guardar version OpenLane
         if: steps.cache-ol.outputs.cache-hit != 'true'
         run: |
-          docker images
           OPENLANE_TAG=$(docker images --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')
+          echo ${OPENLANE_TAG}
           docker save -o ${{ github.workspace }}/OL/cached_image.tar efabless/openlane:${OPENLANE_TAG}
           
   Run:
