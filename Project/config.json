@@ -1,0 +1,9 @@
+{
+    "DESIGN_NAME": "Project",
+    "VERILOG_FILES": "dir::Verilog/*.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 40,
+    "VDD_NETS": ["vdd"],
+    "GND_NETS": ["vss"]
+  }
+  
