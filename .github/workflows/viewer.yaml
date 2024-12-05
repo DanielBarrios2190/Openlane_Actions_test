@@ -1,0 +1,189 @@
+name: 'GDS 2D-3D viewer'
+
+on:
+  workflow_run:
+    workflows:
+      - Digital flow  # Triggered when the other workflow is completed
+    types:
+      - completed
+
+permissions:
+  pages: write  # Permission to publish GitHub Pages
+  id-token: write  # Needed for deployment processes
+
+jobs:
+  GDS2PNG:
+    runs-on: ubuntu-20.04  # Use Ubuntu 20.04 environment
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    # Step 2: Download GDS artifact from the previous workflow
+    - name: Download GDS artifact
+      uses: dawidd6/action-download-artifact@v7
+      with:
+        workflow: flow.yaml
+        workflow_conclusion: success  # Only runs if the previous workflow succeeded
+        name: myproject-gds  # Artifact name
+
+    # Step 3: Install system prerequisites (for GDS rendering)
+    - name: Install prerequisites
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: librsvg2-bin pngquant cairosvg
+        version: test
+
+    # Step 4: Install Python dependencies for GDS rendering
+    - name: Install Python dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install gdstk
+
+    # Step 5: Organize GDS files into a directory
+    - name: Copy GDS files
+      run: |
+        mkdir gds
+        cp *.gds gds/
+
+    # Step 6: Render PNG from GDS using a custom Python script
+    - name: Use gds2png script
+      run: |
+        python3 gds2png.py
+
+    # Step 7: Upload the PNG as an artifact
+    - name: Upload PNG artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gds_png  # Name of the uploaded artifact
+        path: 'gds_render.png'
+
+  GDS2gTLF:
+    runs-on: ubuntu-20.04  # Use Ubuntu 20.04 environment
+    needs: GDS2PNG  # Requires the GDS2PNG job to complete first
+
+    steps:
+    # Step 1: Download the GDS artifact
+    - name: Download GDS artifact
+      uses: dawidd6/action-download-artifact@v7
+      with:
+        workflow: flow.yaml
+        workflow_conclusion: success
+        name: myproject-gds
+
+    # Step 2: Clone the GDS2glTF repository (for 3D conversion)
+    - name: Clone GDS2glTF repository
+      uses: actions/checkout@v4
+      with:
+        repository: mbalestrini/GDS2glTF  # External repository
+        path: GDS2glTF_repo
+
+    # Step 3: Set up Python environment
+    - name: Python version
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'  # Specify Python version
+        cache: 'pip'
+
+    # Step 4: Install Python dependencies for 3D conversion
+    - name: Install Python dependencies
+      run: |
+        python -m pip install numpy gdspy triangle pygltflib
+
+    # Step 5: Rename the GDS file for consistency
+    - name: Rename GDS file
+      run: |
+        GDS_FILE=$(ls ./*.gds | head -n 1) 
+        if [ -z "$GDS_FILE" ]; then
+          echo "Error: No GDS file found in the gds/ directory."
+          exit 1
+        fi
+        cp "$GDS_FILE" ./GDS2glTF_repo/render.gds
+
+    # Step 6: Convert GDS to glTF format
+    - name: Convert GDS to glTF
+      run: |
+        cd GDS2glTF_repo
+        python3 gds2gltf.py render.gds
+
+    # Step 7: Upload the glTF artifact
+    - name: Upload glTF artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gds_gtlf  # Name of the uploaded artifact
+        path: 'GDS2glTF_repo/render.gds.gltf'
+
+  GithubSite:
+    runs-on: ubuntu-20.04  # Use Ubuntu 20.04 environment
+    needs: GDS2gTLF  # Requires the GDS2gTLF job to complete first
+
+    steps: 
+    # Step 1: Checkout the repository
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    # Step 2: Prepare a directory for GitHub Pages
+    - name: Create gh-pages directory
+      run: |
+        mkdir -p ./gh-pages
+
+    # Step 3: Download the PNG artifact for 2D preview
+    - name: Download PNG artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: gds_png
+        path: './gh-pages'
+
+    # Step 4: Download the glTF artifact for 3D visualization
+    - name: Download glTF artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: gds_gtlf
+        path: './gh-pages'
+
+    # Step 5: Generate HTML pages for redirection
+    - name: Generate HTML redirection page
+      shell: bash
+      run: |
+        cat << EOF >> gh-pages/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Redirecting to GDS Viewer...</title>
+          </head>
+          <body>
+            <script>
+              location.href = "https://gds-viewer.tinytapeout.com/?model=" + encodeURIComponent(location.href + '/render.gds.gltf');
+            </script>
+          </body>
+          </html>
+        EOF
+
+    # Step 6: Upload artifacts to GitHub Pages
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: 'gh-pages'
+    
+    # Step 7: Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+    # Step 8: Display a preview link in the workflow summary
+    - name: Display preview in workflow summary
+      shell: bash
+      run: |
+        PAGE_URL=${{ steps.deployment.outputs.page_url }}
+        PAGE_URL=$(echo "$PAGE_URL" | sed -e 's/\/$//')
+        cat << EOF >> $GITHUB_STEP_SUMMARY
+        # 3D Viewer
+        [open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/render.gds.gltf)
+
+        # 2D Preview
+        ![png]($PAGE_URL/gds_render.png)
+        EOF
