@@ -1,4 +1,4 @@
-module Project(
+module SCRISCV(
     input  wire [4:0] ui_in,    // Dedicated inputs - connected to the input switches
     output wire [3:0] uo_out,   // Dedicated outputs - connected to the 7 segment display
     input  wire       clk,      // clock
