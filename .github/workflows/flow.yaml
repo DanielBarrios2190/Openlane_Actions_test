@@ -38,12 +38,11 @@ jobs:
     # Step 5: Install OpenLane Python package
     - name: Install OpenLane
       run: python3 -m pip install openlane
-      # OpenLane is a complete open-source RTL-to-GDSII flow
 
     # Step 6: Run OpenLane flow
     - name: Run OpenLane
       run: |
-        cd my_project  # Change directory to the project folder
+        cd my_project
         python3 -m openlane --docker-no-tty --dockerized --flow Classic config.json
         # Run the OpenLane flow in Docker using the Classic flow with the provided config.json
 

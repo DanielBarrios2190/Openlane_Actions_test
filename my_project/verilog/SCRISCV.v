@@ -1,6 +1,6 @@
 module SCRISCV(
-    input  wire [4:0] ui_in,    // Dedicated inputs - connected to the input switches
-    output wire [3:0] uo_out,   // Dedicated outputs - connected to the 7 segment display
+    input  wire [4:0] ui_in,    // Inputs // Switches
+    output wire [3:0] uo_out,   // Outputs // IR Sensor and LEDs
     input  wire       clk,      // clock
     input  wire       rst_n,    // reset_n
     inout vdd,
