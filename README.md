@@ -12,6 +12,6 @@ The latter design was created by [Nicolás Orcasitas](https://github.com/Nicolas
 
 ## Final Result in KLayout:
 
-This was generated using a series of .yaml files adapted from the [**Tiny Tapeout 5**](https://github.com/TinyTapeout/tt05-submission-template) and [**10**](https://github.com/TinyTapeout/tt10-verilog-template) repositories by Uri Shaked, Matt Venn, and others. 
+This was generated using a series of .yaml files adapted from the [**Tiny Tapeout 5**](https://github.com/TinyTapeout/tt05-submission-template) and [**10 editions**](https://github.com/TinyTapeout/tt10-verilog-template) repositories by Uri Shaked, Matt Venn, and others. 
 
 ![GDS_Klayout](MediaReadme/GDS_Klayout.png)

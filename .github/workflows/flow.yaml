@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # Trigger manually
 
 jobs:
-  install-and-test:
+  install-and-run:
     runs-on: ubuntu-20.04  # Use Ubuntu 20.04 environment for the workflow
 
     steps:
