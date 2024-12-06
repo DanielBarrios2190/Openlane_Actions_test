@@ -1,109 +1,76 @@
-name: openlane
+name: Digital flow
+
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Trigger manually
 
 jobs:
-  Instalacion:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Repositorio principal
-        uses: actions/checkout@v3
+  install-and-run:
+    runs-on: ubuntu-20.04  # Use Ubuntu 20.04 environment for the workflow
 
-      - name: Instalar Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-          
-      - name: Cache OpenLane and PDK
-        if: steps.cache-ol.outputs.cache-hit != 'true'
-        uses: actions/cache@v3
-        id: cache-ol
-        with:
-          path: |
-            /home/runner/.volare
-            ${{ github.workspace }}/OL
-          key: cache-key-${{ runner.os }}
-          
-      - name: Clonar OpenLane
-        if: steps.cache-ol.outputs.cache-hit != 'true'
-        run: |
-          mkdir  ${{ github.workspace }}/OL
-          cd ${{ github.workspace }}/OL
-          git clone --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git
-          
-      - name: Instalar OpenLane
-        if: steps.cache-ol.outputs.cache-hit != 'true'
-        run: |
-          cd ${{ github.workspace }}/OL/OpenLane
-          make
-          
-      - name: Correr Test
-        if: steps.cache-ol.outputs.cache-hit != 'true'
-        run: |
-          cd ${{ github.workspace }}/OL/OpenLane
-          make test
-          
-      - name: Revisar y guardar version OpenLane
-        if: steps.cache-ol.outputs.cache-hit != 'true'
-        run: |
-          OPENLANE_TAG=$(docker images --format '{{.Repository}} {{.Tag}}' | grep 'efabless/openlane' | awk 'NR==1{print $2}')
-          echo ${OPENLANE_TAG}
-          docker save -o ${{ github.workspace }}/OL/cached_image.tar efabless/openlane:${OPENLANE_TAG}
-          
-  Run:
-    runs-on: ubuntu-latest
-    needs: Instalacion
-    if: success()
     steps:
-      - name: Buscar Archivos de test
-        uses: actions/checkout@v3
-        
-      - name: Restaurar dependencias
-        uses: actions/cache@v3
-        with:
-          path: |
-            /home/runner/.volare
-            ${{ github.workspace }}/OL
-          key: cache-key-${{ runner.os }}
-          
-      - name: Restaurar docker
-        id: restore_docker
-        run: |
-          docker load -i ${{ github.workspace }}/OL/cached_image.tar
-          cp -r ${{ github.workspace }}/src ${{ github.workspace }}/OL/OpenLane/designs/
-          OPENLANE_TAG=$(docker images --filter "reference=efabless/openlane" --format '{{.Repository}} {{.Tag}}' | awk 'NR==1{print $2}')
-          echo "OPENLANE_IMAGE=efabless/openlane:$OPENLANE_TAG" >> "$GITHUB_OUTPUT"
-          
-      - name: Run Nueva
-        uses: addnab/docker-run-action@v3
-        env:
-          OPENLANE_IMAGE: ${{ steps.restore_docker.outputs.OPENLANE_IMAGE }}
-        with:
-          image: ${{ env.OPENLANE_IMAGE }}
-          options: --rm -v ${{ github.workspace }}:${{ github.workspace }} -v ${{ github.workspace }}/OL/OpenLane:/openlane -v ${{ github.workspace }}/OL/OpenLane/empty:/openlane/install -v /home/runner/.volare:/home/runner/.volare -e PDK_ROOT=/home/runner/.volare -e PDK=sky130A
-          run: |
-            ./flow.tcl -overwrite -design src -tag latest
-      - name: Subir Resultados
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: Reports
-          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/
-      - name: Subir GDS solo
-        uses: actions/upload-artifact@v3
-        if: success()
-        with: 
-          name: GDS
-          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/results/final/gds/
-      
-      - name: Read CSV
-        id: csv
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: ${{ github.workspace }}/OL/OpenLane/designs/src/runs/latest/reports/metrics.csv
-      - uses: petems/csv-to-md-table-action@master
-        id: csv-table-output
-        with:
-          csvinput: ${{ steps.csv.outputs.content }}
-      - run: |
-          echo "${{ steps.csv-table-output.outputs.markdown-table }}" >> $GITHUB_STEP_SUMMARY
+    # Step 1: Check out the repository
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    # Step 2: Update and upgrade the system packages
+    - name: Update and upgrade system
+      run: |
+        sudo apt-get update  # Fetch the latest package information
+        sudo apt-get upgrade -y  # Upgrade all packages to their latest versions
+
+    # Step 3: Install required system packages
+    - name: Install required packages
+      run: |
+        sudo apt install -y build-essential python3 python3-venv python3-pip python3-tk curl make git docker.io
+        # build-essential: Compilation tools
+        # python3, python3-venv, python3-pip: Python setup
+        # python3-tk: Required for graphical Python applications
+        # curl, make, git: Utilities for development
+        # docker.io: For running Docker containers
+
+    # Step 4: Verify Docker and Python installations
+    - name: Verify Docker and Python installations
+      run: |
+        docker --version  # Check Docker installation
+        python3 --version  # Check Python installation
+        python3 -m pip --version  # Check pip installation
+
+    # Step 5: Install OpenLane Python package
+    - name: Install OpenLane
+      run: python3 -m pip install openlane
+
+    # Step 6: Run OpenLane flow
+    - name: Run OpenLane
+      run: |
+        cd my_project
+        python3 -m openlane --docker-no-tty --dockerized --flow Classic config.json
+        # Run the OpenLane flow in Docker using the Classic flow with the provided config.json
+
+    # Step 7: Locate the GDS file generated by OpenLane
+    - name: Find and Upload GDS file
+      run: |
+        # Identify the latest run directory
+        LAST_RUN_DIR=$(ls -d ${{ github.workspace }}/my_project/runs/RUN_* | sort | tail -n 1)
+        # Find any GDS file in the final/gds/ directory
+        GDS_FILE=$(find "$LAST_RUN_DIR/final/gds" -type f -name "*.gds" | head -n 1)
+
+        echo ">> Aquí está el contenido de la carpeta final/gds:"
+        ls "$LAST_RUN_DIR/final/gds/"
+
+        if [ -n "$GDS_FILE" ]; then
+          # If a GDS file is found, set its path as an environment variable
+          echo "GDS file found at: $GDS_FILE"
+          echo "gds_path=$GDS_FILE" >> $GITHUB_ENV
+        else
+          # Exit with an error if no GDS file is found
+          echo "Error: No GDS file found in the latest run directory!"
+          exit 1
+        fi
+
+
+    # Step 8: Upload the GDS file as an artifact
+    - name: Upload GDS file as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: myproject-gds  # Artifact name for identification
+        path: ${{ env.gds_path }}  # Use the path saved in the environment variable

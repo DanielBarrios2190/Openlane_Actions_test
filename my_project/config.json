@@ -1,0 +1,9 @@
+{
+    "DESIGN_NAME": "SCRISCV",
+    "VERILOG_FILES": "dir::verilog/*.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 50,
+    "VDD_NETS": ["vdd"],
+    "GND_NETS": ["vss"]
+  }
+  
